@@ -43,36 +43,32 @@ function getCurrentPlayer()
 	return weapon
 end
 
-function on_pre_wirebug(args)
-	local hunter = getCurrentPlayer()
-	local userDataType = getType("snow.player.PlayerUserDataCommon")
-	local userDateComon=sdk.get_native_singleton("snow.player.PlayerUserDataCommon")
-	print("test")
-	dump(hunter)
-	dump(userDateComon)
-
-               
-
-	-- sdk.set_native_field(hunter, userDataType, "_HunterWireJumpHighSpeed", 0)
-	-- sdk.set_native_field(hunter, userDataType, "_HunterWireJumpLowSpeed", 0)
-	-- sdk.set_native_field(hunter, userDataType, "_HunterWireJumpLowFlySpeed", 0)
-	-- sdk.set_native_field(hunter, userDataType, "_HunterWireJumpTargetFlySpeed", 0)
-end
-function dump(o)
-    if type(o) == 'table' then
-        local s = '{ '
-        for k,v in pairs(o) do
-                if type(k) ~= 'number' then k = '"'..k..'"' end
-                s = s .. '['..k..'] = ' .. dump(v) .. ','
-        end
-        return print(s .. '} ')
-    else
-        return print(o)
-    end
+function on_pre(args)
 end
 
-function on_post_wirebug(retval)
+hunter = getCurrentPlayer()
+basePlayerTypeDef = getType("snow.player.PlayerBase")
+
+targetTypeDef = getType("snow.player.PlayerData")
+-- local playerData=sdk.get_native_field(hunter,targetTypeDef,"_refPlayerData")
+playerData=hunter:get_field("_refPlayerData")
+
+function on_post_update(retval)
+	playerData:set_field("_Attack",1500)
+	playerData:set_field("_Defence",750)
 end
 
-sdk.hook(sdk.find_type_definition("snow.player.fsm.PlayerFsm2ActionHunterWire"):get_method("start"), on_pre_wirebug, on_post_wirebug)
+function on_post_vital(retval)
+	print('vital')
+	playerData:set_field("_stamina",5700)
+	playerData:set_field("_staminaMax",5700)
+	playerData:set_field("_vitalMax",150)
+	playerData:set_field("_vitalKeep",150)
+	playerData:set_field("_r_Vital",150)
+	-- hunter:set_field("_AdjustPlayerPositionSpd",10)
+
+end
+
+sdk.hook(sdk.find_type_definition("snow.player.PlayerBase"):get_method("update"), on_pre, on_post_update)
+sdk.hook(sdk.find_type_definition("snow.player.PlayerData"):get_method("set__vital"), on_pre, on_post_vital)
 
