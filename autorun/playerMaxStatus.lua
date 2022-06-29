@@ -10,20 +10,17 @@ local enableController = false
 local enableKeyboard = false
 local enabled = true
 
+local font = d2d.Font.new("Arial", 20, false)
+
 re.on_draw_ui(function()
 	local changed = false
 
-    if imgui.tree_node("Infinite Wirebugs") then
+    if imgui.tree_node("Player Max Status") then
         changed, enabled = imgui.checkbox("Enabled", enabled)
-			if imgui.tree_node("Keybind shortcuts") then
-				changed, enableController = imgui.checkbox("Controller (default: [RS/R3])", enableController)
-				changed, enableKeyboard = imgui.checkbox("Keyboard (default: [END])", enableKeyboard)
-				imgui.tree_pop()
-		    end
         imgui.tree_pop()
-		imgui.text(' - made by Fylex');
     end
 end)
+
 
 function getType(name)
 	return sdk.find_type_definition(name)
@@ -47,20 +44,34 @@ function getCurrentPlayer()
 end
 
 function on_pre_wirebug(args)
+	local hunter = getCurrentPlayer()
+	local userDataType = getType("snow.player.PlayerUserDataCommon")
+	local userDateComon=sdk.get_native_singleton("snow.player.PlayerUserDataCommon")
+	print("test")
+	dump(hunter)
+	dump(userDateComon)
+
+               
+
+	-- sdk.set_native_field(hunter, userDataType, "_HunterWireJumpHighSpeed", 0)
+	-- sdk.set_native_field(hunter, userDataType, "_HunterWireJumpLowSpeed", 0)
+	-- sdk.set_native_field(hunter, userDataType, "_HunterWireJumpLowFlySpeed", 0)
+	-- sdk.set_native_field(hunter, userDataType, "_HunterWireJumpTargetFlySpeed", 0)
+end
+function dump(o)
+    if type(o) == 'table' then
+        local s = '{ '
+        for k,v in pairs(o) do
+                if type(k) ~= 'number' then k = '"'..k..'"' end
+                s = s .. '['..k..'] = ' .. dump(v) .. ','
+        end
+        return print(s .. '} ')
+    else
+        return print(o)
+    end
 end
 
 function on_post_wirebug(retval)
-	if enabled then
-		local hunter = getCurrentPlayer()
-		local basePlayerTypeDef = getType("snow.player.PlayerBase")
-		local wirebugGaugeTypeDef = getType("snow.player.PlayerBase.HunterWireGauge")
-		
-		local wirebugSlot = sdk.get_native_field(hunter, basePlayerTypeDef, "_HunterWireGauge")
-		sdk.set_native_field(wirebugSlot[0], wirebugGaugeTypeDef, "_RecastTimer", 0)
-		sdk.set_native_field(wirebugSlot[1], wirebugGaugeTypeDef, "_RecastTimer", 0)
-		sdk.set_native_field(wirebugSlot[2], wirebugGaugeTypeDef, "_RecastTimer", 0)
-	end
-    return retval;
 end
 
 sdk.hook(sdk.find_type_definition("snow.player.fsm.PlayerFsm2ActionHunterWire"):get_method("start"), on_pre_wirebug, on_post_wirebug)
