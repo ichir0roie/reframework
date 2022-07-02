@@ -202,12 +202,6 @@ function initQuest()
 end
 
 
--- function test() 
--- 	quest_started=true
--- 	hunter_initialized=false
--- 	updateHunterInfo()
--- end
--- test()
 
 sdk.hook(sdk.find_type_definition("snow.QuestManager"):get_method("questStart"), nil, questStart)
 sdk.hook(sdk.find_type_definition("snow.QuestManager"):get_method("onQuestEnd"), nil, questEnd)
