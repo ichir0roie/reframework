@@ -228,8 +228,10 @@ end
 -- 若干問題あり。装備を変えた場合に対応できてない。
 function addBulletNum(num)
 	hunter:call('resetBulletNum')
+	playerData:set_field("_HeavyBowgunHeatGauge",0)
 	return num
 end
+
 
 sdk.hook(sdk.find_type_definition("snow.QuestManager"):get_method("questStart"), nil, questStart)
 sdk.hook(sdk.find_type_definition("snow.QuestManager"):get_method("onQuestEnd"), nil, questEnd)
@@ -241,3 +243,4 @@ sdk.hook(sdk.find_type_definition("snow.player.fsm.PlayerFsm2ActionHeavyBowgunSe
 sdk.hook(sdk.find_type_definition("snow.player.fsm.PlayerFsm2ActionHeavyBowgunAddBulletWyvernSnipeEnd"):get_method("start"), defPre, snipeUpdate)
 sdk.hook(sdk.find_type_definition("snow.player.HeavyBowgun"):get_method("addBulletNum"),defPre, addBulletNum)
 sdk.hook(sdk.find_type_definition("snow.player.LightBowgun"):get_method("addBulletNum"),defPre, addBulletNum)
+sdk.hook(sdk.find_type_definition("snow.player.HeavyBowgun"):get_method("addBulletNumFullAuto"),defPre, addBulletNum)
