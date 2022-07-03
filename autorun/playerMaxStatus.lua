@@ -32,13 +32,21 @@ function getSingletonField(singleton, name)
 	local singletonRef, typedef = table.unpack(singleton)
 	return sdk.get_native_field(singletonRef, typedef, name)
 end
+function getCurrentPlayer()
+	local inputManager = getSingletonData("snow.StmInputManager")
+	local inGameInputDevice = getSingletonField(inputManager, "_InGameInputDevice")
+	local playerInput = sdk.get_native_field(inGameInputDevice, getType("snow.StmInputManager.InGameInputDevice"), "_pl_input")
+	local weapon = sdk.get_native_field(playerInput, getType("snow.StmPlayerInput"), "RefPlayer")
+	return weapon
+end
 
 local quest_started=false
 local hunter_initialized=false
 
-local playerManager=nil
-local playerList=nil
+-- local playerManager=nil
+-- local playerList=nil
 local hunter=nil
+local hunterType=nil
 local playerData=nil
 
 function updateHunterInfo()
@@ -72,9 +80,10 @@ function updateHunterInfo()
 end
 
 function setHunter()
-	playerManager=sdk.get_managed_singleton('snow.player.PlayerManager')
-	playerList=playerManager:get_field('PlayerList')		
-	hunter=playerList[0] --todo findmasterplayer?
+	-- playerManager=sdk.get_managed_singleton('snow.player.PlayerManager')
+	-- playerList=playerManager:get_field('PlayerList')		
+	hunter=getCurrentPlayer()
+	hunterType=hunter:get_type_definition()
 end
 
 function notActionStatus()
@@ -90,6 +99,14 @@ function updateStatus()
 		updateHunterInfo()
 	end
 
+	if playerData==nil then
+		return
+	end
+
+	if hunterType:get_name()=="InsectGlaive" then
+		updateInsectGlaive()
+	end
+
 	playerData:set_field("_Attack",1000)
 	playerData:set_field("_Defence",50)
 
@@ -99,8 +116,17 @@ function updateStatus()
 	
 	playerData:set_field("_staminaMax",5700)
 	playerData:set_field("_stamina",5700)
+
+	hunter:set_field("<SharpnessLv>k__BackingField",6)
+
 end
 
+function updateInsectGlaive()
+	hunter:set_field("_RedExtractiveTime",5000)
+	hunter:set_field("_WhiteExtractiveTime",5000)
+	hunter:set_field("_OrangeExtractiveTime",5000)
+	hunter:set_field("_AerialCount",0)
+end
 
 
 function view_info(o)
