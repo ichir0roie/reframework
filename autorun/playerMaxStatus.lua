@@ -84,6 +84,7 @@ function setHunter()
 	-- playerList=playerManager:get_field('PlayerList')		
 	hunter=getCurrentPlayer()
 	hunterType=hunter:get_type_definition()
+	print(hunterType:get_name())
 end
 
 function notActionStatus()
@@ -99,7 +100,12 @@ function updateStatus()
 		updateHunterInfo()
 	end
 
-	if playerData==nil then
+	if hunter==nil or playerData==nil then
+		return
+	end
+
+	hunterType=hunter:get_type_definition()
+	if hunterType:get_name()=="PlayerLobbyBase" then
 		return
 	end
 
@@ -107,8 +113,8 @@ function updateStatus()
 		updateInsectGlaive()
 	end
 
-	playerData:set_field("_Attack",1000)
-	playerData:set_field("_Defence",50)
+	playerData:set_field("_Attack",1500)
+	-- playerData:set_field("_Defence",50)
 
 	playerData:set_field("_vitalMax",200)
 	playerData:set_field("_vitalKeep",200)
@@ -125,7 +131,7 @@ function updateInsectGlaive()
 	hunter:set_field("_RedExtractiveTime",5000)
 	hunter:set_field("_WhiteExtractiveTime",5000)
 	hunter:set_field("_OrangeExtractiveTime",5000)
-	hunter:set_field("_AerialCount",0)
+	hunter:set_field("_AerialCount",2)
 end
 
 
@@ -149,46 +155,22 @@ function setup_wire()
 	local playerCommon=hunter:get_field("_PlayerUserDataCommon")
 	-- wire -> playeruserdatacommon
 
-	local speed=0.75
-	playerCommon:set_field('_HunterWireJumpHighSpeed',2)
+	local speed=0.6
+	playerCommon:set_field('_HunterWireJumpHighSpeed',speed)
 	playerCommon:set_field('_HunterWireJumpHighFlySpeed',speed)
 	playerCommon:set_field('_HunterWireJumpJumpLowSpeed',speed)
 	playerCommon:set_field('_HunterWireJumpLowFlySpeed',speed)
-	playerCommon:set_field('_HunterWireJumpTargetSpeed',speed)
-	playerCommon:set_field('_HunterWireJumpTargetFlySpeed',speed)
+	playerCommon:set_field('_HunterWireJumpTargetSpeed',1.5)
+	playerCommon:set_field('_HunterWireJumpTargetFlySpeed',1.0)
 	local gravity=-0.012
-	playerCommon:set_field('_HunterWireJumpHighGravity',-0.007)
-	playerCommon:set_field('_HunterWireJumpHighFlyGravity',gravity)
+	playerCommon:set_field('_HunterWireJumpHighGravity',gravity)
+	playerCommon:set_field('_HunterWireqJumpHighFlyGravity',gravity)
 	playerCommon:set_field('_HunterWireJumpJumpLowGravity',gravity)
 	playerCommon:set_field('_HunterWireJumpLowFlyGravity',gravity)
-	playerCommon:set_field('_HunterWireJumpTargetGravity',gravity)
-	playerCommon:set_field('_HunterWireJumpTargetFlyGravity',gravity)
+	playerCommon:set_field('_HunterWireJumpTargetGravity',-0.002)
+	playerCommon:set_field('_HunterWireJumpTargetFlyGravity',-0.002)
 end
 
-
-local data=nil
-function moneyUpdate()
-	print('set money')
-	if data == nil then
-		data=sdk.get_managed_singleton("snow.data.DataManager")
-	end
-	if data==nil then
-		return 
-	end
-	local money=data:get_field("_HandMoney")
-	money:set_field("_Value",90000000)
-end
-function villagePointUpdate()
-	print('update vp')
-	if data == nil then
-		data=sdk.get_managed_singleton("snow.data.DataManager")
-	end
-	if data==nil then
-		return 
-	end
-	local money=data:get_field("<VillagePointData>k__BackingField")
-	money:set_field("_Point",90000000)
-end
 
 function override_skill()
 	-- testing
@@ -206,7 +188,6 @@ function override_skill()
 	end
 	
 end
-
 
 function questStart()
 	print("start quest")
@@ -227,7 +208,28 @@ function initQuest()
 	hunter_initialized=false
 end
 
+function defPre()
+	
+end
 
+function machineGunUpdate(r)
+	playerData:set_field("_HeavyBowgunWyvernMachineGunBullet",50)
+	addBulletNum(nil)
+	return r
+end
+
+function snipeUpdate(r)
+	playerData:set_field("_HeavyBowgunWyvernSnipeBullet",1)
+	playerData:set_field("_HeavyBowgunWyvernSnipeTimer",0)
+	return r
+end
+
+
+-- 若干問題あり。装備を変えた場合に対応できてない。
+function addBulletNum(num)
+	hunter:call('resetBulletNum')
+	return num
+end
 
 sdk.hook(sdk.find_type_definition("snow.QuestManager"):get_method("questStart"), nil, questStart)
 sdk.hook(sdk.find_type_definition("snow.QuestManager"):get_method("onQuestEnd"), nil, questEnd)
@@ -235,6 +237,7 @@ sdk.hook(sdk.find_type_definition("snow.QuestManager"):get_method("initQuestPara
 
 sdk.hook(sdk.find_type_definition("snow.player.PlayerBase"):get_method("update"), nil, updateStatus)
 
-sdk.hook(sdk.find_type_definition("snow.data.HandMoney"):get_method("addMoney"), nil, moneyUpdate)
-sdk.hook(sdk.find_type_definition("snow.data.VillagePoint"):get_method("setPointSnapshot"), nil, villagePointUpdate)
-
+sdk.hook(sdk.find_type_definition("snow.player.fsm.PlayerFsm2ActionHeavyBowgunSetBulletWyvernMachineGun"):get_method("update"), defPre, machineGunUpdate)
+sdk.hook(sdk.find_type_definition("snow.player.fsm.PlayerFsm2ActionHeavyBowgunAddBulletWyvernSnipeEnd"):get_method("start"), defPre, snipeUpdate)
+sdk.hook(sdk.find_type_definition("snow.player.HeavyBowgun"):get_method("addBulletNum"),defPre, addBulletNum)
+sdk.hook(sdk.find_type_definition("snow.player.LightBowgun"):get_method("addBulletNum"),defPre, addBulletNum)

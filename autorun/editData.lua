@@ -96,10 +96,40 @@ end
 
 
 
+local data=nil
+function moneyUpdate()
+	print('set money')
+	if data == nil then
+		data=sdk.get_managed_singleton("snow.data.DataManager")
+	end
+	if data==nil then
+		return 
+	end
+	local money=data:get_field("_HandMoney")
+	money:set_field("_Value",90000000)
+end
+function villagePointUpdate()
+	print('update vp')
+	if data == nil then
+		data=sdk.get_managed_singleton("snow.data.DataManager")
+	end
+	if data==nil then
+		return 
+	end
+	local money=data:get_field("<VillagePointData>k__BackingField")
+	money:set_field("_Point",90000000)
+end
+
 sdk.hook(sdk.find_type_definition("snow.VillageAreaManager"):get_method("jump"), runSetItemBox, defPost)
 sdk.hook(sdk.find_type_definition("snow.data.ItemPouch"):get_method("addItem"), tryConsumeItemPouch,defPost )
 sdk.hook(sdk.find_type_definition("snow.player.Bow"):get_method("requestCreateArrow"), tryConsumeBullet,defPost )
+sdk.hook(sdk.find_type_definition("snow.player.LightBowgun"):get_method("isShootMove"), tryConsumeBullet,defPost)
+sdk.hook(sdk.find_type_definition("snow.player.HeavyBowgun"):get_method("isShootMove"), tryConsumeBullet,defPost)
 
+
+
+sdk.hook(sdk.find_type_definition("snow.data.HandMoney"):get_method("addMoney"), nil, moneyUpdate)
+sdk.hook(sdk.find_type_definition("snow.data.VillagePoint"):get_method("setPointSnapshot"), nil, villagePointUpdate)
 
 
 
