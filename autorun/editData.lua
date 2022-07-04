@@ -7,14 +7,24 @@ function setItemBox()
     local items=inventoryList:get_field("mItems")
 
     print(#items)
-    local itemOneNumber=68157441
-    for i=0,1800-1,1 do
+    local itemZero=68157440
+    local itemPlaceMax=2999
+    local place=0
+    for i=0,1799,1 do
         local itemCount=items[i]:get_field("_ItemCount")
-        local id=itemCount:get_field("_Id")
-        local num=itemCount:get_field("_Num")
-        print(tostring(id).." : "..tostring(num))
-        itemCount:set_field("_Id",itemOneNumber+i)
-        itemCount:set_field("_Num",9000)
+        
+        if place==1104 then
+            place=2001
+        end
+            
+        if place>itemPlaceMax then
+            return
+        end
+
+        itemCount:set_field("_Id",itemZero+place)
+        itemCount:set_field("_Num",5000+place)    
+
+        place=place+1
     end
 end
 
@@ -26,10 +36,10 @@ function runSetItemBox()
         return
     end
 
+    runSetItemBoxFlug=false
     print('item box')
     setItemBox()
 
-    runSetItemBoxFlug=false
 end
 
 local runSetItemPouchFlug=true

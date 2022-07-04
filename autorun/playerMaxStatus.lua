@@ -113,7 +113,7 @@ function updateStatus()
 		updateInsectGlaive()
 	end
 
-	playerData:set_field("_Attack",1500)
+	playerData:set_field("_Attack",1250)
 	-- playerData:set_field("_Defence",50)
 
 	playerData:set_field("_vitalMax",200)
