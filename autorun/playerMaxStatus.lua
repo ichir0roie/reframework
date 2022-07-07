@@ -76,7 +76,16 @@ function updateHunterInfo()
 	setup_wire()
 	-- override_skill()
 
+	setup_equip()
+
 	hunter_initialized=true
+end
+
+function setup_equip()
+	local tree=hunter:get_field('_WeaponListDataCache')
+	tree=tree:get_field('<LocalBaseData>k__BackingField')
+	tree=tree:get_field('_WeaponBaseData')
+	tree:set_field('_Atk',1000)
 end
 
 function setHunter()
@@ -113,9 +122,14 @@ function updateStatus()
 		updateInsectGlaive()
 	end
 
-	playerData:set_field("_Attack",1250)
+	-- status
+	-- playerData:set_field("_Attack",9000)
 	-- playerData:set_field("_Defence",50)
-
+	
+	-- move
+	-- hunter:set_field('_HitSlowSpeed',1.5)
+	-- hunter:set_field('_HitSlowTimer',1000)
+	
 	playerData:set_field("_vitalMax",200)
 	playerData:set_field("_vitalKeep",200)
 	playerData:set_field("_r_Vital",200)
