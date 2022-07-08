@@ -94,6 +94,11 @@ function setHunter()
 	hunter=getCurrentPlayer()
 	hunterType=hunter:get_type_definition()
 	print(hunterType:get_name())
+
+	if hunterType:get_name()=="GunLance" then
+		gunLanceSetup(q)
+	end
+
 end
 
 function notActionStatus()
@@ -220,6 +225,7 @@ function initQuest()
 	print("init quest")
 	quest_started=false
 	hunter_initialized=false
+	gunLanceSetup()
 end
 
 function defPre()
@@ -266,12 +272,12 @@ function gunLanceUpdate(v)
 	end
 	-- hunter:set_field("_CanUsePile",true)
 	hunter:set_field("_AerialCount",0)
-	
+
 	return v
 end
 sdk.hook(sdk.find_type_definition("snow.player.GunLance"):get_method("update"),defPre,gunLanceUpdate)
 
-local manager
+local gunLanceShellManager
 local shell
 local items
 local item
@@ -279,7 +285,7 @@ local upRate=4
 function gunLanceShellUpRate(key)
 	items=nil
 	item=nil
-	for s=0,#shell-1 do
+	for s=0,#shell-1,1 do
 		items=shell[s]:get_field("mItems")
 		for i=0,#items do
 			item=items[i]
@@ -290,11 +296,14 @@ function gunLanceShellUpRate(key)
 	end
 
 end
+function gunLanceSetup()
+	gunLanceShellManager=sdk.get_managed_singleton('snow.shell.GunLanceShellManager')
+end
 function gunLanceSetShell(key)
-	if manager==nil then
-		manager=sdk.get_managed_singleton('snow.shell.GunLanceShellManager')	
+	if gunLanceShellManager==nil then
+		gunLanceSetup()
 	end
-	shell=manager:get_field(key)
+	shell=gunLanceShellManager:get_field(key)
 end
 function gunLanceShell(shellKey,paramKey)
 	gunLanceSetShell(shellKey)
@@ -328,6 +337,6 @@ end
 sdk.hook(sdk.find_type_definition("snow.shell.GunLanceShell101"):get_method("init"),defPost,gunLanceShell101)
 
 
-
+-- TODO 修練場での初期化
 
 
