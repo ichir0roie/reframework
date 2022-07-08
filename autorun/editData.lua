@@ -1,5 +1,17 @@
 -- バックアップ！！
 
+local itemIdArray={
+    {start=1,end_=1103},
+    {start=2001,end_=2383},
+    {start=2450,end_=2478},
+    {start=2584,end_=2592},
+    {start=2663,end_=2713},
+    {start=2803,end_=2806},
+    {start=2808,end_=2808},
+    {start=2830,end_=2832},
+    {start=2851,end_=2873}
+}
+
 function setItemBox()
     local dataManager=sdk.get_managed_singleton("snow.data.DataManager")
     local itemBox=dataManager:get_field("_PlItemBox")
@@ -8,25 +20,31 @@ function setItemBox()
 
     print(#items)
     local itemZero=68157440
-    local itemPlaceMax=2999
-    local place=0
-    for i=0,1799,1 do
-        local itemCount=items[i]:get_field("_ItemCount")
-        
-        if place==1104 then
-            place=2001
-        end
-            
-        if place>itemPlaceMax then
-            return
-        end
+    -- local itemPlaceMax=2999
+    -- local place=2001
+    local itemCount=nil
+    local boxPos=0
+    print(#itemIdArray)
+    for itemArrayStep=1,#itemIdArray,1 do
+        print(itemArrayStep)
+        print(itemIdArray[itemArrayStep].start)
+        for idPos=itemIdArray[itemArrayStep].start,itemIdArray[itemArrayStep].end_,1 do
+            if boxPos>=1800 then
+                print('limit box array...')
+                print(itemZero+idPos)
+                return
+            end
 
-        itemCount:set_field("_Id",itemZero+place)
-        itemCount:set_field("_Num",5000+place)    
-
-        place=place+1
+            itemCount=items[boxPos]:get_field("_ItemCount")
+            itemCount:set_field("_Id",itemZero+idPos)
+            itemCount:set_field("_Num",5000+idPos)
+            boxPos=boxPos+1
+        end
     end
+    print('finish')
 end
+
+-- setItemBox()
 
 local runSetItemBoxFlug=false
 
