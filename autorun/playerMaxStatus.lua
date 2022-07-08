@@ -137,7 +137,7 @@ function updateStatus()
 	playerData:set_field("_staminaMax",5700)
 	playerData:set_field("_stamina",5700)
 
-	hunter:set_field("<SharpnessLv>k__BackingField",6)
+	-- hunter:set_field("<SharpnessLv>k__BackingField",6)
 
 end
 
@@ -226,6 +226,14 @@ function defPre()
 	
 end
 
+
+
+sdk.hook(sdk.find_type_definition("snow.QuestManager"):get_method("questStart"), nil, questStart)
+sdk.hook(sdk.find_type_definition("snow.QuestManager"):get_method("onQuestEnd"), nil, questEnd)
+sdk.hook(sdk.find_type_definition("snow.QuestManager"):get_method("initQuestParam"), nil, initQuest)
+
+sdk.hook(sdk.find_type_definition("snow.player.PlayerBase"):get_method("update"), nil, updateStatus)
+
 function machineGunUpdate(r)
 	playerData:set_field("_HeavyBowgunWyvernMachineGunBullet",50)
 	addBulletNum(nil)
@@ -237,6 +245,8 @@ function snipeUpdate(r)
 	playerData:set_field("_HeavyBowgunWyvernSnipeTimer",0)
 	return r
 end
+sdk.hook(sdk.find_type_definition("snow.player.fsm.PlayerFsm2ActionHeavyBowgunSetBulletWyvernMachineGun"):get_method("update"), defPre, machineGunUpdate)
+sdk.hook(sdk.find_type_definition("snow.player.fsm.PlayerFsm2ActionHeavyBowgunAddBulletWyvernSnipeEnd"):get_method("start"), defPre, snipeUpdate)
 
 
 -- 若干問題あり。装備を変えた場合に対応できてない。
@@ -245,16 +255,79 @@ function addBulletNum(num)
 	playerData:set_field("_HeavyBowgunHeatGauge",0)
 	return num
 end
-
-
-sdk.hook(sdk.find_type_definition("snow.QuestManager"):get_method("questStart"), nil, questStart)
-sdk.hook(sdk.find_type_definition("snow.QuestManager"):get_method("onQuestEnd"), nil, questEnd)
-sdk.hook(sdk.find_type_definition("snow.QuestManager"):get_method("initQuestParam"), nil, initQuest)
-
-sdk.hook(sdk.find_type_definition("snow.player.PlayerBase"):get_method("update"), nil, updateStatus)
-
-sdk.hook(sdk.find_type_definition("snow.player.fsm.PlayerFsm2ActionHeavyBowgunSetBulletWyvernMachineGun"):get_method("update"), defPre, machineGunUpdate)
-sdk.hook(sdk.find_type_definition("snow.player.fsm.PlayerFsm2ActionHeavyBowgunAddBulletWyvernSnipeEnd"):get_method("start"), defPre, snipeUpdate)
 sdk.hook(sdk.find_type_definition("snow.player.HeavyBowgun"):get_method("addBulletNum"),defPre, addBulletNum)
 sdk.hook(sdk.find_type_definition("snow.player.LightBowgun"):get_method("addBulletNum"),defPre, addBulletNum)
 sdk.hook(sdk.find_type_definition("snow.player.HeavyBowgun"):get_method("addBulletNumFullAuto"),defPre, addBulletNum)
+
+function gunLanceUpdate(v)
+	hunter:set_field("_ShotChargeFrame",100)
+	if hunter:get_field("_BulletNum")==0 then
+		hunter:set_field("_BulletNum",1)
+	end
+	-- hunter:set_field("_CanUsePile",true)
+	hunter:set_field("_AerialCount",0)
+	
+	return v
+end
+sdk.hook(sdk.find_type_definition("snow.player.GunLance"):get_method("update"),defPre,gunLanceUpdate)
+
+local manager
+local shell
+local items
+local item
+local upRate=4
+function gunLanceShellUpRate(key)
+	items=nil
+	item=nil
+	for s=0,#shell-1 do
+		items=shell[s]:get_field("mItems")
+		for i=0,#items do
+			item=items[i]
+			if item ~= nil then
+				item:set_field(key,upRate)
+			end
+		end
+	end
+
+end
+function gunLanceSetShell(key)
+	if manager==nil then
+		manager=sdk.get_managed_singleton('snow.shell.GunLanceShellManager')	
+	end
+	shell=manager:get_field(key)
+end
+function gunLanceShell(shellKey,paramKey)
+	gunLanceSetShell(shellKey)
+	gunLanceShellUpRate(paramKey)
+end
+
+function gunLanceShell000(v)
+	gunLanceShell("_GunLanceShell000s",'_DamageRate_Physical')
+	return v
+end
+sdk.hook(sdk.find_type_definition("snow.shell.GunLanceShell000"):get_method("init"),defPre,gunLanceShell000)
+function gunLanceShell001(v)
+	gunLanceShell("_GunLanceShell001s",'_DamageRate')
+	return v
+end
+sdk.hook(sdk.find_type_definition("snow.shell.GunLanceShell001"):get_method("init"),defPost,gunLanceShell001)
+function gunLanceShell002(v)
+	gunLanceShell("_GunLanceShell002s",'_DamageRate')
+	return v
+end
+sdk.hook(sdk.find_type_definition("snow.shell.GunLanceShell002"):get_method("init"),defPost,gunLanceShell002)
+function gunLanceShell003(v)
+	gunLanceShell("_GunLanceShell003s",'_DamageRate')
+	return v
+end
+sdk.hook(sdk.find_type_definition("snow.shell.GunLanceShell003"):get_method("init"),defPost,gunLanceShell003)
+function gunLanceShell101(v)
+	gunLanceShell("_GunLanceShell101s",'_DamageRate')
+	return v
+end
+sdk.hook(sdk.find_type_definition("snow.shell.GunLanceShell101"):get_method("init"),defPost,gunLanceShell101)
+
+
+
+
+
