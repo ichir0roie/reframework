@@ -303,7 +303,9 @@ function gunLanceSetShell(key)
 	if gunLanceShellManager==nil then
 		gunLanceSetup()
 	end
-	shell=gunLanceShellManager:get_field(key)
+	if gunLanceShellManager~=nil then
+		shell=gunLanceShellManager:get_field(key)
+	end
 end
 function gunLanceShell(shellKey,paramKey)
 	gunLanceSetShell(shellKey)
