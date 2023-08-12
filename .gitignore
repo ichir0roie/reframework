@@ -9,3 +9,6 @@ data/
 images/
 plugins/
 dinput8.dll
+
+autorun/utility
+autorun/infinite_wirebugs.lua
