@@ -71,10 +71,10 @@ function updateHunterInfo()
 		return
 	end
 
-	if hunter == nil then
-		hunter_initialized = false
-		return
-	end
+	-- if hunter == nil then
+	-- 	hunter_initialized = false
+	-- 	return
+	-- end
 
 	playerData = hunter:get_field("_refPlayerData")
 	print(playerData)
@@ -82,17 +82,17 @@ function updateHunterInfo()
 	setup_wire()
 	-- override_skill()
 
-	setup_equip()
+	-- setup_equip()
 
 	hunter_initialized = true
 end
 
-function setup_equip()
-	local tree = hunter:get_field('_WeaponListDataCache')
-	tree = tree:get_field('<LocalBaseData>k__BackingField')
-	tree = tree:get_field('_WeaponBaseData')
-	tree:set_field('_Atk', 2000)
-end
+-- function setup_equip()
+-- local tree = hunter:get_field('_WeaponListDataCache')
+-- tree = tree:get_field('<LocalBaseData>k__BackingField')
+-- tree = tree:get_field('_WeaponBaseData')
+-- tree:set_field('_Atk', 2000)
+-- end
 
 function setHunter()
 	-- playerManager=sdk.get_managed_singleton('snow.player.PlayerManager')
@@ -106,16 +106,9 @@ function setHunter()
 	end
 end
 
-function notActionStatus()
-	-- if not runActionMod or hunter ==nil or not quest_started then
-	if not hunter_initialized or not in_quest then
-		return true
-	end
-	return false
-end
-
 function updateStatus()
-	if not hunter_initialized and in_quest then
+	-- if not hunter_initialized and in_quest then
+	if not hunter_initialized then
 		updateHunterInfo()
 	end
 
@@ -133,8 +126,8 @@ function updateStatus()
 	end
 
 	-- status
-	-- playerData:set_field("_Attack",9000)
-	-- playerData:set_field("_Defence",50)
+	playerData:set_field("_Attack", 2000)
+	playerData:set_field("_Defence", 1000)
 
 	-- move
 	-- hunter:set_field('_HitSlowSpeed',1.5)
@@ -212,6 +205,9 @@ end
 function questStart()
 	print("start quest")
 	in_quest = true
+	hunter = nil
+	playerData = nil
+	hunter_initialized = false
 end
 
 function questEnd()
@@ -222,6 +218,8 @@ end
 
 function initQuest()
 	print("init quest")
+	-- クエスト終了時にも呼ばれる。
+	-- in_quest = true
 	-- gunLanceSetup()
 end
 
@@ -236,12 +234,14 @@ sdk.hook(sdk.find_type_definition("snow.QuestManager"):get_method("initQuestPara
 sdk.hook(sdk.find_type_definition("snow.player.PlayerBase"):get_method("update"), nil, updateStatus)
 
 function machineGunUpdate(r)
+	print("update machin gun")
 	playerData:set_field("_HeavyBowgunWyvernMachineGunBullet", 50)
 	addBulletNum(nil)
 	return r
 end
 
 function snipeUpdate(r)
+	print("update snipe")
 	playerData:set_field("_HeavyBowgunWyvernSnipeBullet", 1)
 	playerData:set_field("_HeavyBowgunWyvernSnipeTimer", 0)
 	return r
