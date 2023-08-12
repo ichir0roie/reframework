@@ -1,18 +1,22 @@
 -- バックアップ！！
 
 local itemIdArray = {
-    { start = 1,    end_ = 1103 },
-    { start = 2001, end_ = 2383 },
-    { start = 2450, end_ = 2478 },
-    { start = 2584, end_ = 2592 },
+    { start = 2001, end_ = 2382 },
+    { start = 2449, end_ = 2477 },
+    { start = 2583, end_ = 2663 },
     { start = 2663, end_ = 2713 },
-    { start = 2803, end_ = 2806 },
-    { start = 2808, end_ = 2808 },
-    { start = 2830, end_ = 2832 },
-    { start = 2851, end_ = 2873 }
+    { start = 2795, end_ = 3000 },
+    { start = 1,    end_ = 1103 },
+    -- { start = 2300, end_ = 2450 },
+    -- { start = , end_ =  },
+
 }
 
+local item_count_base = 5000
+local debug_skip_multiple = 1
+
 function setItemBox()
+    print("set item box")
     local dataManager = sdk.get_managed_singleton("snow.data.DataManager")
     local itemBox = dataManager:get_field("_PlItemBox")
     local inventoryList = itemBox:get_field("_InventoryList")
@@ -29,15 +33,22 @@ function setItemBox()
         print(itemArrayStep)
         print(itemIdArray[itemArrayStep].start)
         for idPos = itemIdArray[itemArrayStep].start, itemIdArray[itemArrayStep].end_, 1 do
+            local id_ = idPos * debug_skip_multiple
+            if id_ > itemIdArray[itemArrayStep].end_ then
+                print("finish id max")
+                print(id_)
+                return
+            end
             if boxPos >= 1800 then
                 print('limit box array...')
-                print(itemZero + idPos)
+                print(idPos)
                 return
             end
 
+
             itemCount = items[boxPos]:get_field("_ItemCount")
-            itemCount:set_field("_Id", itemZero + idPos)
-            itemCount:set_field("_Num", 5000 + idPos)
+            itemCount:set_field("_Id", itemZero + id_)
+            itemCount:set_field("_Num", item_count_base + id_ - 1)
             boxPos = boxPos + 1
         end
     end
