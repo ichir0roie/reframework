@@ -43,6 +43,9 @@ function getCurrentPlayer()
 end
 
 local in_quest = false
+
+in_quest = true -- test
+
 local hunter_initialized = false
 
 -- local playerManager=nil
